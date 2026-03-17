@@ -1,0 +1,54 @@
+rules_version = '2'
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function userEmail() {
+      return request.auth != null && request.auth.token.email != null
+        ? request.auth.token.email
+        : null;
+    }
+
+    function rolePath() {
+      return /databases/$(database)/documents/roles/$(userEmail());
+    }
+
+    function roleValue() {
+      if (request.auth == null || userEmail() == null) {
+        return 'viewer';
+      }
+      if (!exists(rolePath())) {
+        return 'viewer';
+      }
+      return get(rolePath()).data.role == 'admin' ? 'admin' : 'viewer';
+    }
+
+    function isAdmin() {
+      return request.auth != null && roleValue() == 'admin';
+    }
+
+    function isViewer() {
+      return request.auth != null && roleValue() == 'viewer';
+    }
+
+    match /locations/{locationId} {
+      allow read: if request.auth != null && (isAdmin() || isViewer());
+      allow create: if request.auth != null && isAdmin();
+      allow update, delete: if request.auth != null && isAdmin();
+
+      match /journal/{entryId} {
+        allow read: if request.auth != null && (isAdmin() || isViewer());
+        allow create: if request.auth != null && isAdmin();
+        allow update, delete: if request.auth != null && isAdmin();
+      }
+    }
+
+    match /roles/{emailId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
