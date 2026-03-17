@@ -34,6 +34,7 @@ export function HomePage() {
   const [geoStatus, setGeoStatus] = useState<'idle' | 'success' | 'denied' | 'error'>('idle')
   const [journal, setJournal] = useState<JournalEntry[]>([])
   const [formReady, setFormReady] = useState(false)
+  const [showJournalForm, setShowJournalForm] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -67,6 +68,7 @@ export function HomePage() {
   useEffect(() => {
     if (!activeId) {
       setJournal([])
+      setShowJournalForm(false)
       return
     }
 
@@ -185,6 +187,7 @@ export function HomePage() {
       if (activeId === id) {
         setActiveId(null)
         setFormReady(false)
+        setShowJournalForm(false)
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to delete location'
@@ -226,6 +229,7 @@ export function HomePage() {
       authorName: user.displayName,
       authorEmail: user.email,
     }, entryId)
+    setShowJournalForm(false)
   }
 
   const startPlacement = () => {
@@ -369,6 +373,7 @@ export function HomePage() {
               const found = locations.find((item) => item.id === id)
               if (found) setDraftCoords({ lat: found.lat, lng: found.lng })
               setFormReady(true)
+              setShowJournalForm(false)
             }}
             onDelete={(id) => handleDelete(id)}
             canEdit={canEdit}
@@ -399,10 +404,20 @@ export function HomePage() {
                   <p className="eyebrow">{t('journalTitle')}</p>
                   <h3>{activeLocation.name || t('popupUntitled')}</h3>
                 </div>
+                {canEdit && (
+                  <button className="ghost" onClick={() => setShowJournalForm(true)}>
+                    {t('journalAdd')}
+                  </button>
+                )}
               </div>
               <JournalList entries={journal} t={t} />
-              {canEdit && (
-                <JournalForm onSubmit={handleJournalSubmit} disabled={!canEdit} t={t} />
+              {canEdit && showJournalForm && (
+                <JournalForm
+                  onSubmit={handleJournalSubmit}
+                  onCancel={() => setShowJournalForm(false)}
+                  disabled={!canEdit}
+                  t={t}
+                />
               )}
             </div>
           )}

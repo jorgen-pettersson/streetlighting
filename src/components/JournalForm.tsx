@@ -3,11 +3,12 @@ import type { TranslationKey } from '../i18n'
 
 type Props = {
   onSubmit: (input: { title: string; description: string; file?: File }) => Promise<void>
+  onCancel: () => void
   disabled: boolean
   t: (key: TranslationKey) => string
 }
 
-export function JournalForm({ onSubmit, disabled, t }: Props) {
+export function JournalForm({ onSubmit, onCancel, disabled, t }: Props) {
   const [values, setValues] = useState({ title: '', description: '' })
   const [file1, setFile1] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
@@ -76,9 +77,14 @@ export function JournalForm({ onSubmit, disabled, t }: Props) {
       </div>
       {error && <div className="error">{error}</div>}
       <div className="actions">
-        <button className="primary" type="submit" disabled={disabled || saving}>
-          {saving ? t('formSaving') : t('journalSubmit')}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="ghost" type="button" onClick={onCancel} disabled={saving}>
+            {t('cancel')}
+          </button>
+          <button className="primary" type="submit" disabled={disabled || saving}>
+            {saving ? t('formSaving') : t('journalSubmit')}
+          </button>
+        </div>
       </div>
     </form>
   )
