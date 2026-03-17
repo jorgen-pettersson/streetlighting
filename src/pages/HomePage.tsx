@@ -202,29 +202,15 @@ export function HomePage() {
   const handleJournalSubmit = async (input: {
     title: string
     description: string
-    file?: File
+    imageData?: string
   }) => {
     if (!user || !canEdit || !activeId) return
     const entryId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`
 
-    let image1: string | undefined
-    if (input.file) {
-      if (input.file.size > 250_000) {
-        setError('Image too large (max ~250KB)')
-        return
-      }
-      image1 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(reader.result as string)
-        reader.onerror = () => reject(new Error('Failed to read file'))
-        reader.readAsDataURL(input.file!)
-      })
-    }
-
     await addJournalEntry(activeId, {
       title: input.title,
       description: input.description,
-      image1,
+      image1: input.imageData,
       authorId: user.uid,
       authorName: user.displayName,
       authorEmail: user.email,

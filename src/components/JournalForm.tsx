@@ -1,8 +1,9 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react'
 import type { TranslationKey } from '../i18n'
+import { compressImage } from '../utils/image'
 
 type Props = {
-  onSubmit: (input: { title: string; description: string; file?: File }) => Promise<void>
+  onSubmit: (input: { title: string; description: string; imageData?: string }) => Promise<void>
   onCancel: () => void
   disabled: boolean
   t: (key: TranslationKey) => string
@@ -20,8 +21,8 @@ export function JournalForm({ onSubmit, onCancel, disabled, t }: Props) {
 
   const handleFile = (setter: (file: File | null) => void) => (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null
-    if (f && f.size > 250_000) {
-      setError(t('journalImage1'))
+    if (f && f.size > 5_000_000) {
+      setError('Image too large (max ~5MB input)')
       setter(null)
       return
     }
@@ -33,10 +34,28 @@ export function JournalForm({ onSubmit, onCancel, disabled, t }: Props) {
     event.preventDefault()
     if (disabled) return
     setSaving(true)
+    let imageData: string | undefined
+    if (file1) {
+      try {
+        imageData = await compressImage(file1, { maxEdge: 1280, maxBytes: 250_000, quality: 0.7, minQuality: 0.4 })
+        if (!imageData) {
+          throw new Error('Failed to process image')
+        }
+        if (imageData.length * 0.75 > 260_000) {
+          throw new Error('Compressed image still too large (~250KB max)')
+        }
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Image processing failed'
+        setError(message)
+        setSaving(false)
+        return
+      }
+    }
+
     await onSubmit({
       title: values.title.trim() || t('journalTitle'),
       description: values.description.trim(),
-      file: file1 || undefined,
+      imageData,
     })
     setValues({ title: '', description: '' })
     setFile1(null)
