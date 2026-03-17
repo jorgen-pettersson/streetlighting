@@ -126,28 +126,6 @@ export function LocationForm({ initialCoords, activeLocation, loading, canEdit, 
           />
         </label>
         <label>
-          <span>{t('formLabelLat')}</span>
-          <input
-            type="number"
-            step="0.00001"
-            name="lat"
-            value={values.lat}
-            onChange={handleChange('lat')}
-            disabled={!canEdit}
-          />
-        </label>
-        <label>
-          <span>{t('formLabelLng')}</span>
-          <input
-            type="number"
-            step="0.00001"
-            name="lng"
-            value={values.lng}
-            onChange={handleChange('lng')}
-            disabled={!canEdit}
-          />
-        </label>
-        <label>
           <span>{t('formLabelColor')}</span>
           <select name="color" value={values.color} onChange={handleChange('color')} disabled={!canEdit}>
             <option value="amber">Amber</option>
@@ -171,6 +149,9 @@ export function LocationForm({ initialCoords, activeLocation, loading, canEdit, 
           </select>
         </label>
       </div>
+      <p className="muted" style={{ marginTop: 8 }}>
+        {t('badgePlacing')}
+      </p>
       <div className="actions">
         <button className="primary" type="submit" disabled={loading || !canEdit}>
           {!canEdit
