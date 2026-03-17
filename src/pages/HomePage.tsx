@@ -31,7 +31,6 @@ export function HomePage() {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [role, setRole] = useState<Role>('viewer')
   const [roleLoading, setRoleLoading] = useState(true)
-  const [geoStatus, setGeoStatus] = useState<'idle' | 'success' | 'denied' | 'error'>('idle')
   const [journal, setJournal] = useState<JournalEntry[]>([])
   const [formReady, setFormReady] = useState(false)
   const [showJournalForm, setShowJournalForm] = useState(false)
@@ -85,33 +84,6 @@ export function HomePage() {
 
   useEffect(() => {
     if (!user) return
-    if (geoStatus === 'success' || geoStatus === 'denied') return
-
-    if (!navigator.geolocation) {
-      setGeoStatus('error')
-      return
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const coords = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-        }
-        setDraftCoords(coords)
-        setPendingCoords(coords)
-        setGeoStatus('success')
-      },
-      (err) => {
-        console.warn('[geo] denied/error', err)
-        setGeoStatus(err.code === 1 ? 'denied' : 'error')
-      },
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 },
-    )
-  }, [user, geoStatus])
-
-  useEffect(() => {
-    if (!user) return
     setLoading(true)
     setError(null)
 
@@ -137,9 +109,11 @@ export function HomePage() {
   const canEdit = role === 'admin' && !roleLoading
 
   useEffect(() => {
-    if (!activeId && locations.length) {
+    if (!locations.length) return
+    if (!activeId) {
       const first = locations[0]
       setDraftCoords({ lat: first.lat, lng: first.lng })
+      return
     }
   }, [activeId, locations])
 
@@ -286,13 +260,7 @@ export function HomePage() {
       <main className="layout">
         <section className="map-wrapper">
           <div className="badge">
-            {placing
-              ? t('badgePlacing')
-              : geoStatus === 'success'
-                ? t('badgeCentered')
-                : geoStatus === 'denied'
-                  ? t('badgeDenied')
-                  : t('badgeDefault')}
+            {placing ? t('badgePlacing') : t('badgeDefault')}
           </div>
           {placing && (
             <div className="crosshair-overlay">
