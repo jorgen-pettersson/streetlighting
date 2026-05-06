@@ -34,6 +34,15 @@ export function HomePage() {
   const [journal, setJournal] = useState<JournalEntry[]>([])
   const [formReady, setFormReady] = useState(false)
   const [showJournalForm, setShowJournalForm] = useState(false)
+  const [geoAttempted, setGeoAttempted] = useState(false)
+
+  const isMobileDevice = useMemo(() => {
+    if (typeof navigator === 'undefined') return false
+    const uaDataMobile = (navigator as Navigator & { userAgentData?: { mobile?: boolean } }).userAgentData?.mobile
+    if (typeof uaDataMobile === 'boolean') return uaDataMobile
+    const ua = navigator.userAgent || ''
+    return /Android|iPhone|iPad|iPod|Mobile|Tablet|Windows Phone/i.test(ua)
+  }, [])
 
   useEffect(() => {
     if (!user) return
@@ -81,6 +90,37 @@ export function HomePage() {
 
     return () => stop()
   }, [activeId])
+
+  useEffect(() => {
+    if (!user) return
+    if (!isMobileDevice) return
+    if (geoAttempted) return
+    if (typeof window === 'undefined') return
+    if (!navigator?.geolocation) {
+      setGeoAttempted(true)
+      return
+    }
+
+    try {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const coords = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          }
+          setDraftCoords(coords)
+          setPendingCoords(coords)
+          setGeoAttempted(true)
+        },
+        () => {
+          setGeoAttempted(true)
+        },
+        { enableHighAccuracy: true, timeout: 6000, maximumAge: 60000 },
+      )
+    } catch {
+      setGeoAttempted(true)
+    }
+  }, [user, isMobileDevice, geoAttempted])
 
   useEffect(() => {
     if (!user) return
