@@ -391,6 +391,11 @@ a.ghost:hover {
 .marker-dot.dot-ok { background: #6ada8a; }
 .marker-dot.dot-broken { background: #ff7b7b; }
 .marker-dot.dot-action { background: #ffb347; }
+.marker-dot.dot-current {
+  background: #5da8ff;
+  border-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(93, 168, 255, 0.25);
+}
 
 .muted {
   color: var(--muted);

@@ -36,6 +36,7 @@ export function HomePage() {
   const [showJournalForm, setShowJournalForm] = useState(false)
   const [geoAttempted, setGeoAttempted] = useState(false)
   const [geoStatus, setGeoStatus] = useState<'idle' | 'locating' | 'success' | 'denied' | 'unavailable' | 'error'>('idle')
+  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null)
 
   const isMobileDevice = useMemo(() => {
     if (typeof navigator === 'undefined') return false
@@ -113,6 +114,7 @@ export function HomePage() {
           }
           setDraftCoords(coords)
           setPendingCoords(coords)
+          setCurrentLocation(coords)
           setGeoStatus('success')
           setGeoAttempted(true)
         },
@@ -143,6 +145,7 @@ export function HomePage() {
         }
         setDraftCoords(coords)
         setPendingCoords(coords)
+        setCurrentLocation(coords)
         setGeoStatus('success')
       },
       (err) => {
@@ -374,6 +377,7 @@ export function HomePage() {
             center={draftCoords}
             placing={placing}
             pendingCoords={pendingCoords}
+            currentLocation={currentLocation}
             t={t}
             onMapClick={(coords) => {
               if (placing) {

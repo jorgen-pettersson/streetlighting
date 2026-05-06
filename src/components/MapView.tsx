@@ -31,6 +31,8 @@ const statusIcons: Record<string, DivIcon> = {
   action_required: L.divIcon({ className: 'marker-dot dot-action' }),
 }
 
+const currentLocationIcon = L.divIcon({ className: 'marker-dot dot-current' })
+
 function getIcon(status?: string) {
   return statusIcons[status ?? 'ok'] ?? defaultIcon
 }
@@ -40,6 +42,7 @@ type Props = {
   activeId: string | null
   center: { lat: number; lng: number }
   pendingCoords: { lat: number; lng: number }
+  currentLocation: { lat: number; lng: number } | null
   placing: boolean
   onMapClick: (coords: { lat: number; lng: number }) => void
   onSelect: (id: string) => void
@@ -100,6 +103,7 @@ export function MapView({
   activeId,
   center,
   pendingCoords,
+  currentLocation,
   placing,
   onMapClick,
   onSelect,
@@ -125,6 +129,11 @@ export function MapView({
       <Recenter center={center} />
       <CenterWatcher enabled={placing} onCenterChange={onCenterChange} />
       <MapClicks onClick={onMapClick} />
+      {currentLocation && (
+        <Marker position={[currentLocation.lat, currentLocation.lng]} opacity={0.95} icon={currentLocationIcon}>
+          <Popup>{t('popupCurrentLocation')}</Popup>
+        </Marker>
+      )}
       {placing && (
         <Marker position={[pendingCoords.lat, pendingCoords.lng]} opacity={0.9} icon={getIcon('action_required')}>
           <Popup>{t('popupPending')}</Popup>
