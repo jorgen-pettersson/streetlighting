@@ -35,6 +35,7 @@ export function HomePage() {
   const [formReady, setFormReady] = useState(false)
   const [showJournalForm, setShowJournalForm] = useState(false)
   const [geoAttempted, setGeoAttempted] = useState(false)
+  const [geoStatus, setGeoStatus] = useState<'idle' | 'locating' | 'success' | 'denied' | 'unavailable' | 'error'>('idle')
 
   const isMobileDevice = useMemo(() => {
     if (typeof navigator === 'undefined') return false
@@ -97,11 +98,13 @@ export function HomePage() {
     if (geoAttempted) return
     if (typeof window === 'undefined') return
     if (!navigator?.geolocation) {
+      setGeoStatus('unavailable')
       setGeoAttempted(true)
       return
     }
 
     try {
+      setGeoStatus('locating')
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const coords = {
@@ -110,17 +113,44 @@ export function HomePage() {
           }
           setDraftCoords(coords)
           setPendingCoords(coords)
+          setGeoStatus('success')
           setGeoAttempted(true)
         },
-        () => {
+        (err) => {
+          setGeoStatus(err.code === 1 ? 'denied' : 'error')
           setGeoAttempted(true)
         },
         { enableHighAccuracy: true, timeout: 6000, maximumAge: 60000 },
       )
     } catch {
+      setGeoStatus('error')
       setGeoAttempted(true)
     }
   }, [user, isMobileDevice, geoAttempted])
+
+  const locateMe = () => {
+    if (typeof window === 'undefined' || !navigator?.geolocation) {
+      setGeoStatus('unavailable')
+      return
+    }
+
+    setGeoStatus('locating')
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const coords = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        }
+        setDraftCoords(coords)
+        setPendingCoords(coords)
+        setGeoStatus('success')
+      },
+      (err) => {
+        setGeoStatus(err.code === 1 ? 'denied' : 'error')
+      },
+      { enableHighAccuracy: true, timeout: 6000, maximumAge: 60000 },
+    )
+  }
 
   useEffect(() => {
     if (!user) return
@@ -265,6 +295,11 @@ export function HomePage() {
           <h1>{t('subtitle')}</h1>
         </div>
         <div className="actions-row">
+          {isMobileDevice && (
+            <button className="ghost" onClick={locateMe} disabled={geoStatus === 'locating'}>
+              {geoStatus === 'locating' ? 'Locating…' : 'Use my location'}
+            </button>
+          )}
           {!placing && (
             <button
               className="primary"
@@ -300,7 +335,17 @@ export function HomePage() {
       <main className="layout">
         <section className="map-wrapper">
           <div className="badge">
-            {placing ? t('badgePlacing') : t('badgeDefault')}
+            {placing
+              ? t('badgePlacing')
+              : geoStatus === 'success'
+                ? 'Location active'
+                : geoStatus === 'denied'
+                  ? 'Location denied'
+                  : geoStatus === 'unavailable'
+                    ? 'Location unavailable'
+                    : geoStatus === 'error'
+                      ? 'Location failed'
+                      : t('badgeDefault')}
           </div>
           {placing && (
             <div className="crosshair-overlay">
