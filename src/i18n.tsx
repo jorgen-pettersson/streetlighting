@@ -68,6 +68,8 @@ export const translations: Record<Locale, Dictionary> = {
     needAdminAdd: 'Only admins can add points.',
     needAdminSave: 'You need admin access to save points.',
     needAdminDelete: 'You need admin access to delete points.',
+    exportButton: 'Export',
+    exportFilename: 'streetlighting-locations',
   },
   sv: {
     appTitle: 'Röröns Gatubelysning',
@@ -132,6 +134,8 @@ export const translations: Record<Locale, Dictionary> = {
     needAdminAdd: 'Endast admins kan lägga till punkter.',
     needAdminSave: 'Du behöver adminåtkomst för att spara.',
     needAdminDelete: 'Du behöver adminåtkomst för att ta bort.',
+    exportButton: 'Exportera',
+    exportFilename: 'rorens-gatubelysning',
   },
 }
 

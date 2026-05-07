@@ -12,6 +12,7 @@ import {
   updateLocation,
   type Location,
 } from '../services/locations'
+import { exportToCsv } from '../utils/csv'
 import { listenToRole, type Role } from '../services/roles'
 import { locales, useI18n } from '../i18n'
 import { addJournalEntry, listenToJournal, type JournalEntry } from '../services/journal'
@@ -310,6 +311,15 @@ export function HomePage() {
               disabled={saving || !canEdit || roleLoading}
             >
               {canEdit ? t('addPoint') : t('adminOnly')}
+            </button>
+          )}
+          {canEdit && (
+            <button
+              className="ghost"
+              onClick={() => exportToCsv(locations, locale)}
+              disabled={loading || locations.length === 0}
+            >
+              {t('exportButton')}
             </button>
           )}
           <select
