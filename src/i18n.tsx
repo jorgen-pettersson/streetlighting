@@ -70,6 +70,9 @@ export const translations: Record<Locale, Dictionary> = {
     needAdminDelete: 'You need admin access to delete points.',
     exportButton: 'Export',
     exportFilename: 'streetlighting-locations',
+    imageTooLarge: 'Image too large (max 10MB input)',
+    imageProcessing: 'Processing image...',
+    imageStillTooLarge: 'Compressed image still too large (~250KB max)',
   },
   sv: {
     appTitle: 'Röröns Gatubelysning',
@@ -136,6 +139,9 @@ export const translations: Record<Locale, Dictionary> = {
     needAdminDelete: 'Du behöver adminåtkomst för att ta bort.',
     exportButton: 'Exportera',
     exportFilename: 'rorens-gatubelysning',
+    imageTooLarge: 'Bild för stor (max 10MB indata)',
+    imageProcessing: 'Bearbetar bild...',
+    imageStillTooLarge: 'Komprimerad bild fortfarande för stor (~250KB max)',
   },
 }
 

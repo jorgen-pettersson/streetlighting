@@ -21,8 +21,8 @@ export function JournalForm({ onSubmit, onCancel, disabled, t }: Props) {
 
   const handleFile = (setter: (file: File | null) => void) => (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null
-    if (f && f.size > 5_000_000) {
-      setError('Image too large (max ~5MB input)')
+    if (f && f.size > 10_000_000) {
+      setError(t('imageTooLarge'))
       setter(null)
       return
     }
@@ -34,15 +34,18 @@ export function JournalForm({ onSubmit, onCancel, disabled, t }: Props) {
     event.preventDefault()
     if (disabled) return
     setSaving(true)
+    setError(null)
     let imageData: string | undefined
     if (file1) {
       try {
+        setError(t('imageProcessing'))
         imageData = await compressImage(file1, { maxEdge: 1280, maxBytes: 250_000, quality: 0.7, minQuality: 0.4 })
+        setError(null)
         if (!imageData) {
           throw new Error('Failed to process image')
         }
         if (imageData.length * 0.75 > 260_000) {
-          throw new Error('Compressed image still too large (~250KB max)')
+          throw new Error(t('imageStillTooLarge'))
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Image processing failed'
