@@ -567,8 +567,39 @@ a.ghost:hover {
 }
 
 @media (max-width: 960px) {
+  body {
+    min-height: auto;
+  }
+
+  .app-shell {
+    display: block;
+  }
+
   .layout {
     grid-template-columns: 1fr;
+    max-height: none;
+    overflow: visible;
+    display: block;
+    padding: 12px;
+  }
+
+  .map-wrapper {
+    min-height: 50vh;
+    height: 50vh;
+    margin-bottom: 12px;
+  }
+
+  .panel {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .move-controls {
+    position: absolute;
+  }
+
+  .placement-card {
+    position: absolute;
   }
 
   .auth-actions {
