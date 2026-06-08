@@ -197,6 +197,8 @@ export function HomePage() {
     lng: number
     color: string
     status: 'ok' | 'broken' | 'action_required'
+    maintenanceResponsibility?: 'BTEA' | 'Röröns vägbelysning'
+    electricSource?: string
   }) => {
     if (!user || !canEdit) {
       setError(t('needAdminSave'))

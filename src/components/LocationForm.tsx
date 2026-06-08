@@ -9,6 +9,8 @@ type FormValues = {
   lng: string
   color: string
   status: 'ok' | 'broken' | 'action_required'
+  maintenanceResponsibility?: 'BTEA' | 'Röröns vägbelysning'
+  electricSource?: string
 }
 
 type Props = {
@@ -24,6 +26,8 @@ type Props = {
     lng: number
     color: string
     status: 'ok' | 'broken' | 'action_required'
+    maintenanceResponsibility?: 'BTEA' | 'Röröns vägbelysning'
+    electricSource?: string
   }) => Promise<void>
   onReset: () => void
 }
@@ -36,6 +40,8 @@ export function LocationForm({ initialCoords, activeLocation, loading, canEdit, 
     lng: initialCoords.lng.toFixed(5),
     color: 'amber',
     status: 'ok',
+    maintenanceResponsibility: undefined,
+    electricSource: undefined,
   })
 
   useEffect(() => {
@@ -47,6 +53,8 @@ export function LocationForm({ initialCoords, activeLocation, loading, canEdit, 
         lng: activeLocation.lng.toFixed(5),
         color: activeLocation.color ?? 'amber',
         status: activeLocation.status ?? 'ok',
+        maintenanceResponsibility: activeLocation.maintenanceResponsibility ?? undefined,
+        electricSource: activeLocation.electricSource ?? undefined,
       })
       return
     }
@@ -147,6 +155,31 @@ export function LocationForm({ initialCoords, activeLocation, loading, canEdit, 
             <option value="broken">{t('status_broken')}</option>
             <option value="action_required">{t('status_action_required')}</option>
           </select>
+        </label>
+        <label>
+          <span>{t('formLabelMaintenance')}</span>
+          <select
+            name="maintenanceResponsibility"
+            value={values.maintenanceResponsibility || ''}
+            onChange={handleChange('maintenanceResponsibility')}
+            disabled={!canEdit}
+          >
+            <option value="">{t('formPlaceholderMaintenance')}</option>
+            <option value="BTEA">BTEA</option>
+            <option value="Röröns vägbelysning">Röröns vägbelysning</option>
+          </select>
+        </label>
+        <label className="full">
+          <span>{t('formLabelElectricSource')}</span>
+          <input
+            type="text"
+            name="electricSource"
+            value={values.electricSource || ''}
+            onChange={handleChange('electricSource')}
+            placeholder={t('formPlaceholderElectricSource')}
+            autoComplete="off"
+            disabled={!canEdit}
+          />
         </label>
       </div>
       <div className="actions">

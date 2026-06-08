@@ -20,6 +20,8 @@ export type LocationInput = {
   lng: number
   color?: string
   status?: 'ok' | 'broken' | 'action_required'
+  maintenanceResponsibility?: 'BTEA' | 'Röröns vägbelysning'
+  electricSource?: string
 }
 
 export type Location = LocationInput & {
@@ -49,6 +51,8 @@ export function listenToLocations(
         lng: Number(data.lng),
         color: data.color ?? 'amber',
         status: (data.status as Location['status']) ?? 'ok',
+        maintenanceResponsibility: data.maintenanceResponsibility ?? undefined,
+        electricSource: data.electricSource ?? undefined,
         ownerId: data.ownerId,
         createdAt: data.createdAt ?? null,
         updatedAt: data.updatedAt ?? null,

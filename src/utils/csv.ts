@@ -14,6 +14,8 @@ export function exportToCsv(locations: Location[], locale: 'en' | 'sv') {
     'Longitude',
     'Color',
     'Status',
+    'Maintenance Responsibility',
+    'Electric Source',
     'Created At',
     'Updated At',
   ]
@@ -26,6 +28,8 @@ export function exportToCsv(locations: Location[], locale: 'en' | 'sv') {
     loc.lng.toString(),
     loc.color || '',
     loc.status || '',
+    escapeCsvField(loc.maintenanceResponsibility || ''),
+    escapeCsvField(loc.electricSource || ''),
     loc.createdAt?.toDate().toISOString() || '',
     loc.updatedAt?.toDate().toISOString() || '',
   ])

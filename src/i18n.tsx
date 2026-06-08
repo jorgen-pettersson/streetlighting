@@ -80,6 +80,10 @@ export const translations: Record<Locale, Dictionary> = {
     confirmMove: 'Confirm',
     cancelMove: 'Cancel',
     popupMove: 'Move point',
+    formLabelMaintenance: 'Maintenance',
+    formPlaceholderMaintenance: 'Select maintenance responsibility',
+    formLabelElectricSource: 'Electric source',
+    formPlaceholderElectricSource: 'Source or reference',
   },
   sv: {
     appTitle: 'Röröns Gatubelysning',
@@ -156,6 +160,10 @@ export const translations: Record<Locale, Dictionary> = {
     confirmMove: 'Bekräfta',
     cancelMove: 'Avbryt',
     popupMove: 'Flytta punkt',
+    formLabelMaintenance: 'Underhållsansvar',
+    formPlaceholderMaintenance: 'Välj underhållsansvar',
+    formLabelElectricSource: 'Elkälla',
+    formPlaceholderElectricSource: 'Källa eller referens',
   },
 }
 

@@ -23,6 +23,8 @@ type Props = {
     lng: number
     color: string
     status: 'ok' | 'broken' | 'action_required'
+    maintenanceResponsibility?: 'BTEA' | 'Röröns vägbelysning'
+    electricSource?: string
   }) => Promise<void>
   onReset: () => void
   // Journal props
