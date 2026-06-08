@@ -211,10 +211,15 @@ export function HomePage() {
     setError(null)
 
     try {
+      // Filter out undefined fields for Firestore
+      const cleanValues = Object.fromEntries(
+        Object.entries(values).filter(([_, value]) => value !== undefined)
+      ) as typeof values
+
       if (activeLocation) {
-        await updateLocation(activeLocation.id, values)
+        await updateLocation(activeLocation.id, cleanValues)
       } else {
-        await createLocation({ ...values, ownerId: user.uid })
+        await createLocation({ ...cleanValues, ownerId: user.uid })
         setActiveId(null)
         setIsAdding(false)
       }
