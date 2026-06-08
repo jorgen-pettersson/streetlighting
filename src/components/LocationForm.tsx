@@ -85,8 +85,8 @@ export function LocationForm({ initialCoords, activeLocation, loading, canEdit, 
       lng,
       color: values.color,
       status: values.status,
-      maintenanceResponsibility: values.maintenanceResponsibility || undefined,
-      electricSource: values.electricSource?.trim() || undefined,
+      maintenanceResponsibility: values.maintenanceResponsibility,
+      electricSource: values.electricSource?.trim(),
     })
 
     if (!activeLocation) {
@@ -95,7 +95,14 @@ export function LocationForm({ initialCoords, activeLocation, loading, canEdit, 
   }
 
   const handleChange = (field: keyof FormValues) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setValues((prev) => ({ ...prev, [field]: event.target.value }))
+    const value = event.target.value
+    
+    // Convert empty strings to undefined for optional fields
+    if (field === 'maintenanceResponsibility' || field === 'electricSource') {
+      setValues((prev) => ({ ...prev, [field]: value || undefined }))
+    } else {
+      setValues((prev) => ({ ...prev, [field]: value }))
+    }
   }
 
   return (
