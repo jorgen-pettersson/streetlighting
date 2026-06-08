@@ -99,7 +99,6 @@ export function HomePage() {
 
   useEffect(() => {
     if (!user) return
-    if (!isMobileDevice) return
     if (geoAttempted) return
     if (typeof window === 'undefined') return
     if (!navigator?.geolocation) {
@@ -132,7 +131,7 @@ export function HomePage() {
       setGeoStatus('error')
       setGeoAttempted(true)
     }
-  }, [user, isMobileDevice, geoAttempted])
+  }, [user, geoAttempted])
 
   const locateMe = () => {
     if (typeof window === 'undefined' || !navigator?.geolocation) {
@@ -342,11 +341,9 @@ export function HomePage() {
           <h1>{t('subtitle')}</h1>
         </div>
         <div className="actions-row">
-          {isMobileDevice && (
-            <button className="ghost" onClick={locateMe} disabled={geoStatus === 'locating'}>
-              {geoStatus === 'locating' ? 'Locating…' : 'Use my location'}
-            </button>
-          )}
+          <button className="ghost" onClick={locateMe} disabled={geoStatus === 'locating'}>
+            {geoStatus === 'locating' ? 'Locating…' : 'Use my location'}
+          </button>
           {!placing && (
             <button
               className="primary"
