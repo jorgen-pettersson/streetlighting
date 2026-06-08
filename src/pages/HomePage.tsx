@@ -246,6 +246,11 @@ export function HomePage() {
       setError(t('needAdminDelete'))
       return
     }
+    
+    if (!window.confirm(t('deleteConfirm'))) {
+      return
+    }
+    
     setSaving(true)
     setError(null)
     try {

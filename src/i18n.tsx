@@ -84,6 +84,9 @@ export const translations: Record<Locale, Dictionary> = {
     formPlaceholderMaintenance: 'Select maintenance responsibility',
     formLabelElectricSource: 'Electric source',
     formPlaceholderElectricSource: 'Source or reference',
+    deleteConfirm: 'Are you sure you want to delete this point?',
+    deleteConfirmButton: 'Yes, delete',
+    deleteCancelButton: 'Cancel',
   },
   sv: {
     appTitle: 'Röröns Gatubelysning',
@@ -164,6 +167,9 @@ export const translations: Record<Locale, Dictionary> = {
     formPlaceholderMaintenance: 'Välj underhållsansvar',
     formLabelElectricSource: 'Elkälla',
     formPlaceholderElectricSource: 'Källa eller referens',
+    deleteConfirm: 'Är du säker på att du vill ta bort denna belysning?',
+    deleteConfirmButton: 'Ja, ta bort',
+    deleteCancelButton: 'Avbryt',
   },
 }
 
