@@ -141,7 +141,7 @@ export function MapView({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <Recenter center={center} />
-      <CenterWatcher enabled={placing} onCenterChange={onCenterChange} />
+      <CenterWatcher enabled={placing || moving} onCenterChange={onCenterChange} />
       <MapClicks onClick={onMapClick} />
       {currentLocation && (
         <Marker position={[currentLocation.lat, currentLocation.lng]} opacity={0.95} icon={currentLocationIcon}>

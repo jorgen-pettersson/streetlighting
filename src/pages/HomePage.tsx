@@ -405,6 +405,13 @@ export function HomePage() {
                         ? 'Location failed'
                         : t('badgeDefault')}
           </div>
+          {(placing || moving) && (
+            <div className="crosshair-overlay">
+              <div className="hair">
+                <span className="dot" />
+              </div>
+            </div>
+          )}
           {placing && (
             <div className="crosshair-overlay">
               <div className="hair">
