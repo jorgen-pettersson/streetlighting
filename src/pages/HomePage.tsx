@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../auth/AuthProvider'
 import LocationList from '../components/LocationList'
+import LocationForm from '../components/LocationForm'
 import MapView from '../components/MapView'
 import {
   createLocation,
@@ -515,14 +516,18 @@ export function HomePage() {
         <aside className="panel">
           {error && <div className="error">{error}</div>}
           {loading && <div className="muted">{t('loadingPoints')}</div>}
-          {placing && (
-            <div className="card muted">
-              <p className="eyebrow">{t('pendingLocation')}</p>
-              <p>{t('addFlowHint')}</p>
-            </div>
-          )}
-
-          <LocationList
+          {placing ? (
+            <LocationForm
+              initialCoords={pendingCoords}
+              activeLocation={null}
+              loading={saving}
+              canEdit={canEdit}
+              t={t}
+              onSubmit={handleSubmit}
+              onReset={cancelPlacement}
+            />
+          ) : (
+            <LocationList
             locations={locations}
             activeId={activeId}
             onSelect={(id) => {
@@ -544,6 +549,7 @@ export function HomePage() {
             setShowJournalForm={setShowJournalForm}
             onJournalSubmit={handleJournalSubmit}
           />
+          )}
         </aside>
       </main>
     </div>
