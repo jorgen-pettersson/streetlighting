@@ -516,7 +516,7 @@ export function HomePage() {
         <aside className="panel">
           {error && <div className="error">{error}</div>}
           {loading && <div className="muted">{t('loadingPoints')}</div>}
-          {placing ? (
+          {placing && (
             <LocationForm
               initialCoords={pendingCoords}
               activeLocation={null}
@@ -526,8 +526,9 @@ export function HomePage() {
               onSubmit={handleSubmit}
               onReset={cancelPlacement}
             />
-          ) : (
-            <LocationList
+          )}
+
+          <LocationList
             locations={locations}
             activeId={activeId}
             onSelect={(id) => {
@@ -549,7 +550,6 @@ export function HomePage() {
             setShowJournalForm={setShowJournalForm}
             onJournalSubmit={handleJournalSubmit}
           />
-          )}
         </aside>
       </main>
     </div>
