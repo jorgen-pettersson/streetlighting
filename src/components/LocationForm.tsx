@@ -85,6 +85,8 @@ export function LocationForm({ initialCoords, activeLocation, loading, canEdit, 
       lng,
       color: values.color,
       status: values.status,
+      maintenanceResponsibility: values.maintenanceResponsibility || undefined,
+      electricSource: values.electricSource?.trim() || undefined,
     })
 
     if (!activeLocation) {
