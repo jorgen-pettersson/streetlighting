@@ -28,6 +28,7 @@ export function HomePage() {
   const [pendingCoords, setPendingCoords] = useState(DEFAULT_CENTER)
   const [placing, setPlacing] = useState(false)
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [isAdding, setIsAdding] = useState(false)
   const [role, setRole] = useState<Role>('viewer')
   const [roleLoading, setRoleLoading] = useState(true)
   const [showJournalForm, setShowJournalForm] = useState(false)
@@ -215,6 +216,7 @@ export function HomePage() {
       } else {
         await createLocation({ ...values, ownerId: user.uid })
         setActiveId(null)
+        setIsAdding(false)
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to save location'
@@ -275,18 +277,20 @@ export function HomePage() {
     setActiveId(null)
     setPlacing(true)
     setPendingCoords(draftCoords)
-
+    setIsAdding(false)
   }
 
   const confirmPlacement = () => {
     setDraftCoords(pendingCoords)
     setPlacing(false)
     setActiveId(null)
+    setIsAdding(true)
   }
 
   const cancelPlacement = () => {
     setPlacing(false)
     setPendingCoords(draftCoords)
+    setIsAdding(false)
   }
 
   const startMove = (id: string) => {
@@ -516,9 +520,9 @@ export function HomePage() {
         <aside className="panel">
           {error && <div className="error">{error}</div>}
           {loading && <div className="muted">{t('loadingPoints')}</div>}
-          {placing && (
+          {placing || isAdding && (
             <LocationForm
-              initialCoords={pendingCoords}
+              initialCoords={draftCoords}
               activeLocation={null}
               loading={saving}
               canEdit={canEdit}
