@@ -7,6 +7,7 @@ import {
   TileLayer,
   useMap,
   useMapEvents,
+  Polyline,
 } from 'react-leaflet'
 import { useEffect } from 'react'
 import marker2x from 'leaflet/dist/images/marker-icon-2x.png'
@@ -14,6 +15,9 @@ import marker1x from 'leaflet/dist/images/marker-icon.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 import type { Location } from '../services/locations'
 import type { TranslationKey } from '../i18n'
+
+const lineColor = 'rgba(255, 140, 66, 0.6)'
+const lineWeight = 3
 
 const defaultIcon = new L.Icon({
   iconRetinaUrl: marker2x,
@@ -43,11 +47,14 @@ type Props = {
   center: { lat: number; lng: number }
   pendingCoords: { lat: number; lng: number }
   moveCoords: { lat: number; lng: number }
+  originalCoords: { lat: number; lng: number } | null
   currentLocation: { lat: number; lng: number } | null
   placing: boolean
   moving: boolean
+  canEdit: boolean
   onMapClick: (coords: { lat: number; lng: number }) => void
   onSelect: (id: string) => void
+  onMoveStart: (id: string) => void
   onCenterChange: (coords: { lat: number; lng: number }) => void
   t: (key: TranslationKey) => string
 }
@@ -106,11 +113,14 @@ export function MapView({
   center,
   pendingCoords,
   moveCoords,
+  originalCoords,
   currentLocation,
   placing,
   moving,
+  canEdit,
   onMapClick,
   onSelect,
+  onMoveStart,
   onCenterChange,
   t,
 }: Props) {
@@ -143,29 +153,69 @@ export function MapView({
           <Popup>{t('popupPending')}</Popup>
         </Marker>
       )}
-      {moving && (
-        <Marker position={[moveCoords.lat, moveCoords.lng]} opacity={0.9} icon={getIcon('action_required')}>
-          <Popup>{t('popupPending')}</Popup>
-        </Marker>
+      {moving && originalCoords && (
+        <>
+          <Polyline
+            positions={[
+              [originalCoords.lat, originalCoords.lng],
+              [moveCoords.lat, moveCoords.lng],
+            ]}
+            color={lineColor}
+            weight={lineWeight}
+            dashArray="8, 8"
+          />
+          <Marker position={[originalCoords.lat, originalCoords.lng]} opacity={0.3} icon={getIcon('action_required')} />
+          <Marker position={[moveCoords.lat, moveCoords.lng]} opacity={0.9} icon={getIcon('action_required')}>
+            <Popup>{t('popupPending')}</Popup>
+          </Marker>
+        </>
       )}
-      {locations.map((location) => (
-        <Marker
-          key={location.id}
-          position={[location.lat, location.lng]}
-          opacity={activeId && activeId !== location.id ? 0.75 : 1}
-          icon={getIcon(location.status)}
-          eventHandlers={{ click: () => onSelect(location.id) }}
-        >
-          <Popup>
-            <strong>{location.name || t('popupUntitled')}</strong>
-            <div className="popup-text">{location.description || t('popupNoDescription')}</div>
-            <div className="popup-meta">
-              {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
-            </div>
-            <div className="popup-meta">{t(`status_${location.status ?? 'ok'}` as any)}</div>
-          </Popup>
-        </Marker>
-      ))}
+      {locations.map((location) => {
+        const isMovingTarget = moving && activeId === location.id
+        const isDimmed = (moving && activeId !== location.id) || (activeId && activeId !== location.id)
+        
+        if (isMovingTarget) return null
+          
+        return (
+          <Marker
+            key={location.id}
+            position={[location.lat, location.lng]}
+            opacity={isDimmed ? 0.4 : 1}
+            icon={getIcon(location.status)}
+            eventHandlers={{ click: () => onSelect(location.id) }}
+          >
+            <Popup>
+              <strong>{location.name || t('popupUntitled')}</strong>
+              <div className="popup-text">{location.description || t('popupNoDescription')}</div>
+              <div className="popup-meta">
+                {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
+              </div>
+              <div className="popup-meta">{t(`status_${location.status ?? 'ok'}` as any)}</div>
+              {canEdit && activeId === location.id && !placing && !moving && (
+                <div style={{ marginTop: 8 }}>
+                  <button
+                    style={{
+                      background: 'rgba(255, 140, 66, 0.2)',
+                      border: '1px solid rgba(255, 140, 66, 0.5)',
+                      color: '#ff8c42',
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '13px'
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onMoveStart(location.id)
+                    }}
+                  >
+                    {t('popupMove')}
+                  </button>
+                </div>
+              )}
+            </Popup>
+          </Marker>
+        )
+      })}
       {activeId && null}
     </MapContainer>
   )

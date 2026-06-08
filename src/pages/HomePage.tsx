@@ -40,6 +40,7 @@ export function HomePage() {
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [moving, setMoving] = useState(false)
   const [moveCoords, setMoveCoords] = useState(DEFAULT_CENTER)
+  const [originalCoords, setOriginalCoords] = useState<{ lat: number; lng: number } | null>(null)
 
   const isMobileDevice = useMemo(() => {
     if (typeof navigator === 'undefined') return false
@@ -293,13 +294,15 @@ export function HomePage() {
     setFormReady(false)
   }
 
-  const startMove = () => {
-    if (!activeLocation || !canEdit) {
+  const startMove = (id: string) => {
+    const location = locations.find((l) => l.id === id)
+    if (!location || !canEdit) {
       setError(t('needAdminAdd'))
       return
     }
     setError(null)
-    setMoveCoords({ lat: activeLocation.lat, lng: activeLocation.lng })
+    setOriginalCoords({ lat: location.lat, lng: location.lng })
+    setMoveCoords({ lat: location.lat, lng: location.lng })
     setMoving(true)
   }
 
@@ -312,19 +315,23 @@ export function HomePage() {
       await updateLocation(activeLocation.id, { lat: moveCoords.lat, lng: moveCoords.lng })
       setDraftCoords(moveCoords)
       setMoving(false)
+      setOriginalCoords(null)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to move location'
       setError(message)
       setMoving(false)
+      setOriginalCoords(null)
     } finally {
       setSaving(false)
     }
   }
 
   const cancelMove = () => {
-    if (!activeLocation) return
-    setMoveCoords({ lat: activeLocation.lat, lng: activeLocation.lng })
     setMoving(false)
+    setOriginalCoords(null)
+    if (activeLocation) {
+      setMoveCoords({ lat: activeLocation.lat, lng: activeLocation.lng })
+    }
   }
 
   return (
@@ -340,12 +347,7 @@ export function HomePage() {
               {geoStatus === 'locating' ? 'Locating…' : 'Use my location'}
             </button>
           )}
-          {activeLocation && !moving && canEdit && (
-            <button className="ghost" onClick={startMove} disabled={saving || roleLoading}>
-              {t('movePoint')}
-            </button>
-          )}
-          {!placing && !moving && (
+          {!placing && (
             <button
               className="primary"
               onClick={startPlacement}
@@ -424,6 +426,26 @@ export function HomePage() {
               </div>
             </div>
           )}
+          {moving && (
+            <div className={`move-controls ${isMobileDevice ? 'mobile' : 'desktop'}`}>
+              <div className="move-controls-content">
+                <div className="move-info">
+                  <p className="eyebrow">{t('movingPoint')}</p>
+                  <p className="coords">
+                    {moveCoords.lat.toFixed(5)}, {moveCoords.lng.toFixed(5)}
+                  </p>
+                </div>
+                <div className="move-actions">
+                  <button className="primary" onClick={confirmMove} disabled={saving}>
+                    {saving ? t('moving') : t('confirmMove')}
+                  </button>
+                  <button className="ghost" onClick={cancelMove} disabled={saving}>
+                    {t('cancelMove')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           {moving && activeLocation && (
             <div className="crosshair-overlay">
               <div className="hair">
@@ -453,7 +475,9 @@ export function HomePage() {
             moving={moving}
             pendingCoords={pendingCoords}
             moveCoords={moveCoords}
+            originalCoords={originalCoords}
             currentLocation={currentLocation}
+            canEdit={canEdit}
             t={t}
             onMapClick={(coords) => {
               if (placing) {
@@ -473,6 +497,9 @@ export function HomePage() {
                 setDraftCoords({ lat: found.lat, lng: found.lng })
                 setFormReady(true)
               }
+            }}
+            onMoveStart={(id) => {
+              startMove(id)
             }}
             onCenterChange={(coords) => {
               if (placing) {
