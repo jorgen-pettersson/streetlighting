@@ -366,6 +366,20 @@ a.ghost:hover {
   background: rgba(255, 140, 66, 0.08);
 }
 
+.list-item.expanded {
+  border-color: var(--accent);
+  background: rgba(255, 140, 66, 0.08);
+}
+
+.list-content.hidden {
+  display: none;
+}
+
+.list-expanded {
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
 .list-item h4 {
   margin: 2px 0 6px;
 }

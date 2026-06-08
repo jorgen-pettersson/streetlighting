@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../auth/AuthProvider'
-import LocationForm from '../components/LocationForm'
 import LocationList from '../components/LocationList'
 import MapView from '../components/MapView'
-import JournalForm from '../components/JournalForm'
-import JournalList from '../components/JournalList'
 import {
   createLocation,
   deleteLocation,
@@ -32,8 +29,6 @@ export function HomePage() {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [role, setRole] = useState<Role>('viewer')
   const [roleLoading, setRoleLoading] = useState(true)
-  const [journal, setJournal] = useState<JournalEntry[]>([])
-  const [formReady, setFormReady] = useState(false)
   const [showJournalForm, setShowJournalForm] = useState(false)
   const [geoAttempted, setGeoAttempted] = useState(false)
   const [geoStatus, setGeoStatus] = useState<'idle' | 'locating' | 'success' | 'denied' | 'unavailable' | 'error'>('idle')
@@ -41,6 +36,7 @@ export function HomePage() {
   const [moving, setMoving] = useState(false)
   const [moveCoords, setMoveCoords] = useState(DEFAULT_CENTER)
   const [originalCoords, setOriginalCoords] = useState<{ lat: number; lng: number } | null>(null)
+  const [journal, setJournal] = useState<JournalEntry[]>([])
 
   const isMobileDevice = useMemo(() => {
     if (typeof navigator === 'undefined') return false
@@ -216,7 +212,6 @@ export function HomePage() {
       } else {
         await createLocation({ ...values, ownerId: user.uid })
         setActiveId(null)
-        setFormReady(false)
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to save location'
@@ -237,7 +232,6 @@ export function HomePage() {
       await deleteLocation(id)
       if (activeId === id) {
         setActiveId(null)
-        setFormReady(false)
         setShowJournalForm(false)
       }
     } catch (err) {
@@ -278,20 +272,18 @@ export function HomePage() {
     setActiveId(null)
     setPlacing(true)
     setPendingCoords(draftCoords)
-    setFormReady(false)
+
   }
 
   const confirmPlacement = () => {
     setDraftCoords(pendingCoords)
     setPlacing(false)
     setActiveId(null)
-    setFormReady(true)
   }
 
   const cancelPlacement = () => {
     setPlacing(false)
     setPendingCoords(draftCoords)
-    setFormReady(false)
   }
 
   const startMove = (id: string) => {
@@ -494,15 +486,15 @@ export function HomePage() {
               } else {
                 setDraftCoords(coords)
                 setActiveId(null)
-                setFormReady(false)
               }
             }}
             onSelect={(id) => {
               setActiveId(id)
-              const found = locations.find((item) => item.id === id)
-              if (found) {
-                setDraftCoords({ lat: found.lat, lng: found.lng })
-                setFormReady(true)
+              if (id) {
+                const found = locations.find((item) => item.id === id)
+                if (found) {
+                  setDraftCoords({ lat: found.lat, lng: found.lng })
+                }
               }
             }}
             onMoveStart={(id) => {
@@ -521,63 +513,35 @@ export function HomePage() {
         <aside className="panel">
           {error && <div className="error">{error}</div>}
           {loading && <div className="muted">{t('loadingPoints')}</div>}
+          {placing && (
+            <div className="card muted">
+              <p className="eyebrow">{t('pendingLocation')}</p>
+              <p>{t('addFlowHint')}</p>
+            </div>
+          )}
 
           <LocationList
             locations={locations}
             activeId={activeId}
             onSelect={(id) => {
               setActiveId(id)
-              const found = locations.find((item) => item.id === id)
-              if (found) setDraftCoords({ lat: found.lat, lng: found.lng })
-              setFormReady(true)
-              setShowJournalForm(false)
+              if (id) {
+                const found = locations.find((item) => item.id === id)
+                if (found) setDraftCoords({ lat: found.lat, lng: found.lng })
+              }
             }}
             onDelete={(id) => handleDelete(id)}
             canEdit={canEdit}
             t={t}
+            draftCoords={draftCoords}
+            saving={saving}
+            onSubmit={handleSubmit}
+            onReset={() => setActiveId(null)}
+            journal={journal}
+            showJournalForm={showJournalForm}
+            setShowJournalForm={setShowJournalForm}
+            onJournalSubmit={handleJournalSubmit}
           />
-
-          {!placing && formReady ? (
-            <LocationForm
-              initialCoords={draftCoords}
-              activeLocation={activeLocation}
-              loading={saving}
-              canEdit={canEdit}
-              t={t}
-              onSubmit={handleSubmit}
-              onReset={() => setActiveId(null)}
-            />
-          ) : (
-            <div className="card muted">
-              <p className="eyebrow">{t('pendingLocation')}</p>
-              <p>{placing ? t('addFlowHint') : t('formPromptSelect')}</p>
-            </div>
-          )}
-
-          {activeLocation && (
-            <div className="card">
-              <div className="card-header">
-                <div>
-                  <p className="eyebrow">{t('journalTitle')}</p>
-                  <h3>{activeLocation.name || t('popupUntitled')}</h3>
-                </div>
-                {canEdit && (
-                  <button className="ghost" onClick={() => setShowJournalForm(true)}>
-                    {t('journalAdd')}
-                  </button>
-                )}
-              </div>
-              <JournalList entries={journal} t={t} />
-              {canEdit && showJournalForm && (
-                <JournalForm
-                  onSubmit={handleJournalSubmit}
-                  onCancel={() => setShowJournalForm(false)}
-                  disabled={!canEdit}
-                  t={t}
-                />
-              )}
-            </div>
-          )}
         </aside>
       </main>
     </div>

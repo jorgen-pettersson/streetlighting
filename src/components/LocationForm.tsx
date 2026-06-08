@@ -149,9 +149,6 @@ export function LocationForm({ initialCoords, activeLocation, loading, canEdit, 
           </select>
         </label>
       </div>
-      <p className="muted" style={{ marginTop: 8 }}>
-        {t('badgePlacing')}
-      </p>
       <div className="actions">
         <button className="primary" type="submit" disabled={loading || !canEdit}>
           {!canEdit

@@ -53,7 +53,7 @@ type Props = {
   moving: boolean
   canEdit: boolean
   onMapClick: (coords: { lat: number; lng: number }) => void
-  onSelect: (id: string) => void
+  onSelect: (id: string | null) => void
   onMoveStart: (id: string) => void
   onCenterChange: (coords: { lat: number; lng: number }) => void
   t: (key: TranslationKey) => string
@@ -172,7 +172,7 @@ export function MapView({
       )}
       {locations.map((location) => {
         const isMovingTarget = moving && activeId === location.id
-        const isDimmed = (moving && activeId !== location.id) || (activeId && activeId !== location.id)
+        const isDimmed = (moving && activeId !== location.id) || (! moving && activeId && activeId !== location.id)
         
         if (isMovingTarget) return null
           
