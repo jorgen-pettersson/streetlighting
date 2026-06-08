@@ -107,8 +107,17 @@ export function LocationList({
                       title={t(`status_${location.status ?? 'ok'}` as any)}
                     />
                     <span className="status-pill inline">{t(`status_${location.status ?? 'ok'}` as any)}</span>
+                    {location.electricSource && (
+                      <span className="electric-source">
+                        <span className="flash-icon">⚡</span>
+                        {location.electricSource}
+                      </span>
+                    )}
                     <h4>{location.name || 'Untitled point'}</h4>
                   </div>
+                  {location.maintenanceResponsibility && (
+                    <p className="maintenance-info">{location.maintenanceResponsibility}</p>
+                  )}
                   <p className="muted">{location.description || t('popupNoDescription')}</p>
                 </div>
                 {canEdit && (

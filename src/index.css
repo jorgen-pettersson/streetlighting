@@ -380,6 +380,30 @@ a.ghost:hover {
   margin-bottom: 16px;
 }
 
+.maintenance-info {
+  margin: 4px 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.electric-source {
+  margin-left: 8px;
+  color: var(--text);
+  font-weight: 500;
+  font-size: 13px;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.flash-icon {
+  margin-right: 4px;
+  font-size: 14px;
+  color: var(--accent);
+}
+
 .list-item h4 {
   margin: 2px 0 6px;
 }
