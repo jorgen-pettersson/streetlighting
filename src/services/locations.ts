@@ -2,6 +2,7 @@ import {
   addDoc,
   collection,
   deleteDoc,
+  deleteField,
   doc,
   onSnapshot,
   orderBy,
@@ -74,12 +75,21 @@ export async function createLocation(input: LocationInput & { ownerId: string })
   })
 }
 
-export async function updateLocation(id: string, input: Partial<LocationInput>) {
+export async function updateLocation(id: string, input: Partial<LocationInput>, deleteFields: string[] = []) {
   const ref = doc(db, COLLECTION, id)
-  return updateDoc(ref, {
-    ...input,
-    updatedAt: serverTimestamp(),
+  const updates: Record<string, unknown> = { updatedAt: serverTimestamp() }
+  
+  // Add fields to update
+  Object.entries(input).forEach(([key, value]) => {
+    updates[key] = value
   })
+  
+  // Mark fields to delete
+  deleteFields.forEach((field) => {
+    updates[field] = deleteField()
+  })
+  
+  return updateDoc(ref, updates)
 }
 
 export async function deleteLocation(id: string) {

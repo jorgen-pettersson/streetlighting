@@ -211,14 +211,24 @@ export function HomePage() {
     setError(null)
 
     try {
-      // Filter out undefined fields for Firestore
-      const cleanValues = Object.fromEntries(
-        Object.entries(values).filter(([_, value]) => value !== undefined)
-      ) as typeof values
-
       if (activeLocation) {
-        await updateLocation(activeLocation.id, cleanValues)
+        // Determine which fields to delete (went from having a value to undefined)
+        const fieldsToDelete: string[] = ['maintenanceResponsibility', 'electricSource'].filter(
+          (field) => activeLocation[field as keyof typeof activeLocation] && values[field as keyof typeof values] === undefined
+        )
+        
+        // Filter out undefined fields for Firestore (except ones we're deleting)
+        const cleanValues = Object.fromEntries(
+          Object.entries(values).filter(([_, value]) => value !== undefined)
+        ) as typeof values
+        
+        await updateLocation(activeLocation.id, cleanValues, fieldsToDelete)
       } else {
+        // Filter out undefined fields for Firestore
+        const cleanValues = Object.fromEntries(
+          Object.entries(values).filter(([_, value]) => value !== undefined)
+        ) as typeof values
+        
         await createLocation({ ...cleanValues, ownerId: user.uid })
         setActiveId(null)
         setIsAdding(false)
