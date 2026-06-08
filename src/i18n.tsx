@@ -73,6 +73,10 @@ export const translations: Record<Locale, Dictionary> = {
     imageTooLarge: 'Image too large (max 10MB input)',
     imageProcessing: 'Processing image...',
     imageStillTooLarge: 'Compressed image still too large (~250KB max)',
+    movePoint: 'Move point',
+    moving: 'Moving...',
+    badgeMoving: 'Click new location to move selected point',
+    confirmMove: 'Confirm move',
   },
   sv: {
     appTitle: 'Röröns Gatubelysning',
@@ -142,6 +146,10 @@ export const translations: Record<Locale, Dictionary> = {
     imageTooLarge: 'Bild för stor (max 10MB indata)',
     imageProcessing: 'Bearbetar bild...',
     imageStillTooLarge: 'Komprimerad bild fortfarande för stor (~250KB max)',
+    movePoint: 'Flytta punkt',
+    moving: 'Flyttar...',
+    badgeMoving: 'Klicka ny plats för att flytta vald punkt',
+    confirmMove: 'Bekräfta flytt',
   },
 }
 

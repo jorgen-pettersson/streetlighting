@@ -38,6 +38,8 @@ export function HomePage() {
   const [geoAttempted, setGeoAttempted] = useState(false)
   const [geoStatus, setGeoStatus] = useState<'idle' | 'locating' | 'success' | 'denied' | 'unavailable' | 'error'>('idle')
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null)
+  const [moving, setMoving] = useState(false)
+  const [moveCoords, setMoveCoords] = useState(DEFAULT_CENTER)
 
   const isMobileDevice = useMemo(() => {
     if (typeof navigator === 'undefined') return false
@@ -291,6 +293,40 @@ export function HomePage() {
     setFormReady(false)
   }
 
+  const startMove = () => {
+    if (!activeLocation || !canEdit) {
+      setError(t('needAdminAdd'))
+      return
+    }
+    setError(null)
+    setMoveCoords({ lat: activeLocation.lat, lng: activeLocation.lng })
+    setMoving(true)
+  }
+
+  const confirmMove = async () => {
+    if (!activeLocation || !moving || !canEdit) return
+    setSaving(true)
+    setError(null)
+
+    try {
+      await updateLocation(activeLocation.id, { lat: moveCoords.lat, lng: moveCoords.lng })
+      setDraftCoords(moveCoords)
+      setMoving(false)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to move location'
+      setError(message)
+      setMoving(false)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const cancelMove = () => {
+    if (!activeLocation) return
+    setMoveCoords({ lat: activeLocation.lat, lng: activeLocation.lng })
+    setMoving(false)
+  }
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -304,7 +340,12 @@ export function HomePage() {
               {geoStatus === 'locating' ? 'Locating…' : 'Use my location'}
             </button>
           )}
-          {!placing && (
+          {activeLocation && !moving && canEdit && (
+            <button className="ghost" onClick={startMove} disabled={saving || roleLoading}>
+              {t('movePoint')}
+            </button>
+          )}
+          {!placing && !moving && (
             <button
               className="primary"
               onClick={startPlacement}
@@ -350,15 +391,17 @@ export function HomePage() {
           <div className="badge">
             {placing
               ? t('badgePlacing')
-              : geoStatus === 'success'
-                ? 'Location active'
-                : geoStatus === 'denied'
-                  ? 'Location denied'
-                  : geoStatus === 'unavailable'
-                    ? 'Location unavailable'
-                    : geoStatus === 'error'
-                      ? 'Location failed'
-                      : t('badgeDefault')}
+              : moving
+                ? t('badgeMoving')
+                : geoStatus === 'success'
+                  ? 'Location active'
+                  : geoStatus === 'denied'
+                    ? 'Location denied'
+                    : geoStatus === 'unavailable'
+                      ? 'Location unavailable'
+                      : geoStatus === 'error'
+                        ? 'Location failed'
+                        : t('badgeDefault')}
           </div>
           {placing && (
             <div className="crosshair-overlay">
@@ -381,17 +424,42 @@ export function HomePage() {
               </div>
             </div>
           )}
+          {moving && activeLocation && (
+            <div className="crosshair-overlay">
+              <div className="hair">
+                <span className="dot" />
+              </div>
+              <div className="placement-card">
+                <p className="eyebrow">Moving: {activeLocation.name || t('popupUntitled')}</p>
+                <p className="coords">
+                  {moveCoords.lat.toFixed(5)}, {moveCoords.lng.toFixed(5)}
+                </p>
+                <div className="placement-actions">
+                  <button className="primary" onClick={confirmMove} disabled={saving}>
+                    {saving ? t('moving') : t('confirmMove')}
+                  </button>
+                  <button className="ghost" onClick={cancelMove} disabled={saving}>
+                    {t('cancel')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           <MapView
             locations={locations}
             activeId={activeId}
             center={draftCoords}
             placing={placing}
+            moving={moving}
             pendingCoords={pendingCoords}
+            moveCoords={moveCoords}
             currentLocation={currentLocation}
             t={t}
             onMapClick={(coords) => {
               if (placing) {
                 setPendingCoords(coords)
+              } else if (moving) {
+                setMoveCoords(coords)
               } else {
                 setDraftCoords(coords)
                 setActiveId(null)
@@ -409,6 +477,8 @@ export function HomePage() {
             onCenterChange={(coords) => {
               if (placing) {
                 setPendingCoords(coords)
+              } else if (moving) {
+                setMoveCoords(coords)
               }
             }}
           />

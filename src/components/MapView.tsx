@@ -42,8 +42,10 @@ type Props = {
   activeId: string | null
   center: { lat: number; lng: number }
   pendingCoords: { lat: number; lng: number }
+  moveCoords: { lat: number; lng: number }
   currentLocation: { lat: number; lng: number } | null
   placing: boolean
+  moving: boolean
   onMapClick: (coords: { lat: number; lng: number }) => void
   onSelect: (id: string) => void
   onCenterChange: (coords: { lat: number; lng: number }) => void
@@ -103,8 +105,10 @@ export function MapView({
   activeId,
   center,
   pendingCoords,
+  moveCoords,
   currentLocation,
   placing,
+  moving,
   onMapClick,
   onSelect,
   onCenterChange,
@@ -136,6 +140,11 @@ export function MapView({
       )}
       {placing && (
         <Marker position={[pendingCoords.lat, pendingCoords.lng]} opacity={0.9} icon={getIcon('action_required')}>
+          <Popup>{t('popupPending')}</Popup>
+        </Marker>
+      )}
+      {moving && (
+        <Marker position={[moveCoords.lat, moveCoords.lng]} opacity={0.9} icon={getIcon('action_required')}>
           <Popup>{t('popupPending')}</Popup>
         </Marker>
       )}
