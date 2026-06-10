@@ -444,6 +444,10 @@ a.ghost:hover {
   box-shadow: 0 0 0 4px rgba(93, 168, 255, 0.25);
 }
 
+.marker-dot.ring-source1 { box-shadow: 0 0 0 6px rgba(255, 59, 48, 0.25); }
+.marker-dot.ring-source2 { box-shadow: 0 0 0 6px rgba(52, 199, 89, 0.25); }
+.marker-dot.ring-source3 { box-shadow: 0 0 0 6px rgba(0, 122, 255, 0.25);}
+
 .muted {
   color: var(--muted);
 }

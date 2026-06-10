@@ -37,8 +37,26 @@ const statusIcons: Record<string, DivIcon> = {
 
 const currentLocationIcon = L.divIcon({ className: 'marker-dot dot-current' })
 
-function getIcon(status?: string) {
-  return statusIcons[status ?? 'ok'] ?? defaultIcon
+const electricSourceRingClasses: Record<string, string> = {
+  'Network A': 'ring-source1',
+  'Network B': 'ring-source2',
+  'Network C': 'ring-source3',
+}
+
+function getElectricSourceRingClass(electricSource?: string): string {
+  if (!electricSource) return ''
+  return electricSourceRingClasses[electricSource] || ''
+}
+
+function getIcon(status?: string, electricSource?: string) {
+  const baseIcon = statusIcons[status ?? 'ok'] ?? defaultIcon
+  
+  if (!electricSource) return baseIcon
+  
+  const ringClass = getElectricSourceRingClass(electricSource)
+  if (!ringClass) return baseIcon
+  
+  return L.divIcon({ className: `${baseIcon.options.className} ${ringClass}` })
 }
 
 type Props = {
@@ -181,7 +199,7 @@ export function MapView({
             key={location.id}
             position={[location.lat, location.lng]}
             opacity={isDimmed ? 0.4 : 1}
-            icon={getIcon(location.status)}
+            icon={getIcon(location.status, location.electricSource)}
             eventHandlers={{ click: () => onSelect(location.id) }}
           >
             <Popup>
