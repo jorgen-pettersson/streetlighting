@@ -47,15 +47,8 @@ const electricSourceRingClasses: Record<string, string> = {
 }
 
 function getElectricSourceRingClass(electricSource?: string): string {
-  if (!electricSource) {
-    console.log('No electric source provided')
-    return ''
-  }
-  
-  const mappedClass = electricSourceRingClasses[electricSource]
-  console.log('Electric source:', electricSource, '→ Ring class:', mappedClass || 'None (no match)')
-  
-  return mappedClass || ''
+  if (!electricSource) return ''
+  return electricSourceRingClasses[electricSource] || ''
 }
 
 function getIcon(status?: string, electricSource?: string) {
@@ -66,7 +59,6 @@ function getIcon(status?: string, electricSource?: string) {
   const ringClass = getElectricSourceRingClass(electricSource)
   if (!ringClass) return baseIcon
   
-  console.log('Creating icon with ring class:', ringClass)
   return L.divIcon({ className: `${baseIcon.options.className} ${ringClass}` })
 }
 
