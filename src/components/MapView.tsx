@@ -41,11 +41,21 @@ const electricSourceRingClasses: Record<string, string> = {
   'Network A': 'ring-source1',
   'Network B': 'ring-source2',
   'Network C': 'ring-source3',
+  '1': 'ring-source1',
+  '2': 'ring-source2', 
+  '3': 'ring-source3',
 }
 
 function getElectricSourceRingClass(electricSource?: string): string {
-  if (!electricSource) return ''
-  return electricSourceRingClasses[electricSource] || ''
+  if (!electricSource) {
+    console.log('No electric source provided')
+    return ''
+  }
+  
+  const mappedClass = electricSourceRingClasses[electricSource]
+  console.log('Electric source:', electricSource, '→ Ring class:', mappedClass || 'None (no match)')
+  
+  return mappedClass || ''
 }
 
 function getIcon(status?: string, electricSource?: string) {
@@ -56,6 +66,7 @@ function getIcon(status?: string, electricSource?: string) {
   const ringClass = getElectricSourceRingClass(electricSource)
   if (!ringClass) return baseIcon
   
+  console.log('Creating icon with ring class:', ringClass)
   return L.divIcon({ className: `${baseIcon.options.className} ${ringClass}` })
 }
 
